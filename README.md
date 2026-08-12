@@ -52,7 +52,7 @@ participants and no personal survey data.
 
 | Input | Location | Source |
 |-------|----------|--------|
-| Electoral register / participation / abstention by polling table (1996–2023) | `data/raw_data/` | Electoral Justice of Paraguay (TSJE) |
+| Electoral register / participation / abstention (1996–2023) | [Zenodo](https://doi.org/10.5281/zenodo.21896946) | Electoral Justice of Paraguay (TSJE) |
 | Candidates, municipal and general elections (1998–2023) | `data/raw_data/` | Electoral Justice of Paraguay (TSJE) |
 | Birth dates for candidates recorded without age | `data/auxiliary/` | Formal request to the TSJE (see dissertation Appendix B) |
 | District boundaries shapefile | `data/maps/` | National Institute of Statistics of Paraguay (INE, 2022) |
@@ -61,6 +61,10 @@ The processed datasets in `output/` are included so that scripts `03`–`05` can
 run without the raw inputs. To reproduce the full pipeline from scratch, place
 the raw files listed above in the corresponding folders (each folder contains a
 short note with the exact expected file name).
+
+The raw electoral register file exceeds GitHub's size limit and is therefore
+archived on Zenodo: **https://doi.org/10.5281/zenodo.21896946**. Download it from
+there and place it in `data/raw_data/` before running scripts `01`–`02`.
 
 **A note on the auxiliary file:** it contains the names and birth dates of a
 small number of council candidates. These are public electoral candidates, but
@@ -98,4 +102,4 @@ install.packages(c(
 
 ## Author
 
-MY499 dissertation, candidate number 58847.
+Candidate number 58847.
