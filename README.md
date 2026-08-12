@@ -55,7 +55,7 @@ participants and no personal survey data.
 | Electoral register / participation / abstention (1996–2023) | [Zenodo](https://doi.org/10.5281/zenodo.21896946) | Electoral Justice of Paraguay (TSJE) |
 | Candidates, municipal and general elections (1998–2023) | `data/raw_data/` | Electoral Justice of Paraguay (TSJE) |
 | Birth dates for candidates recorded without age | `data/auxiliary/` | Formal request to the TSJE (see dissertation Appendix B) |
-| District boundaries shapefile | `data/maps/` | National Institute of Statistics of Paraguay (INE, 2022) |
+| District boundaries shapefile | `data/maps/` | National Institute of Statistics of Paraguay (INE) |
 
 The processed datasets in `output/` are included so that scripts `03`–`05` can be
 run without the raw inputs. To reproduce the full pipeline from scratch, place
