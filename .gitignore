@@ -1,0 +1,20 @@
+# R session data
+.Rhistory
+.RData
+.Rproj.user/
+.Ruserdata/
+
+# RStudio project file (optional: delete this line if you want to track it)
+*.Rproj
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# --- Optional: large raw data --------------------------------------------
+# GitHub's web uploader rejects files larger than 25 MB. If your raw TSJE
+# files or the shapefile are large, keep them out of the repo by removing
+# the "#" in front of the lines below, and document their source in the
+# README instead.
+# data/raw_data/
+# data/maps/
