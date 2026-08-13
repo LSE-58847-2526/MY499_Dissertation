@@ -177,109 +177,65 @@ candidates_council_main <- candidates_raw %>%
 
 # Recovering missing candidate ages using information provided by the TSJE -----
 
-# Eight titular council candidates had candidate_age = 0. The birth dates were 
-# obtained through a formal request to the TSJE and used to compute completed 
-# age on the election date (see Appendix B).
+# Eight titular council candidates had candidate_age = 0. The birth dates were   
+# obtained through a formal request to the TSJE (Law No. 5282/2014). The
+# completed age of each candidate on the election date was calculated 
+# from those birth dates. To avoid publishing personal birth data, they were
+# matched by location (year, department, district) in the tibble below 
+# rather than by name.
 
-birth_dates_tsje <- readxl::read_excel(
-  here::here(
-    "data",
-    "auxiliary",
-    "26.07.15 Candidates_without_age.xlsx"
-  )
-) %>%
-  transmute(
-    election_year,
-    department_id = dep,
-    district_id   = dis,
-    surname,
-    first_name    = name,
-    birth_date = as.Date(birth_date),
-    election_date = as.Date(election_date)
-  ) %>%
-  mutate(
-    reconstructed_age =
-      year(election_date) - year(birth_date) -
-      if_else(
-        month(election_date) < month(birth_date) |
-          (
-            month(election_date) == month(birth_date) &
-              day(election_date) < day(birth_date)
-          ),
-        1L, # subtract 1 if the birthday has not occurred yet
-        0L  # subtract 0 if the birthday has already occurred
-      )
-  )
+# Asuncion 2021 (0, 0) is the only district with two different candidates.
 
-# Quality checks for the auxiliary TSJE file -----------------------------------
-
-# The auxiliary TSJE file should contain exactly eight candidates
-stopifnot(nrow(birth_dates_tsje) == 8)
-
-# Birth dates, election dates, and reconstructed ages must be complete
-
-stopifnot(
-  !anyNA(birth_dates_tsje$birth_date),
-  !anyNA(birth_dates_tsje$election_date),
-  !anyNA(birth_dates_tsje$reconstructed_age)
+tsje_ages <- tibble::tribble(
+  ~election_year, ~department_id, ~district_id, ~age_rank, ~reconstructed_age,
+  2006L,          9L,             23L,          1L,        44L,
+  2006L,          9L,             27L,          1L,        34L,
+  2021L,          0L,             0L,           1L,        32L,
+  2021L,          0L,             0L,           2L,        70L,
+  2021L,          2L,             22L,          1L,        39L,
+  2021L,          3L,             35L,          1L,        32L,
+  2021L,          4L,             21L,          1L,        68L,
+  2021L,          8L,             7L,           1L,        58L
 )
 
-# Check that the matching key is unique within the auxiliary file
+# Verify that the tibble has 8 rows and the expected ages, and that there are
+# 8 age-0 records with a sex recorded (real candidates)
 
 stopifnot(
-  nrow(
-    birth_dates_tsje %>%
-      count(
-        election_year,
-        department_id,
-        district_id,
-        surname,
-        first_name
-      ) %>%
-      filter(n > 1)
-  ) == 0
-)
-
-# Verify the reconstructed ages
-
-stopifnot(
+  nrow(tsje_ages) == 8,
   identical(
-    sort(as.integer(birth_dates_tsje$reconstructed_age)),
+    sort(as.integer(tsje_ages$reconstructed_age)),
     sort(c(44L, 34L, 32L, 70L, 39L, 32L, 68L, 58L))
-  )
+  ),
+  sum(candidates_council_main$candidate_age == 0 &
+        !is.na(candidates_council_main$sex), na.rm = TRUE) == 8
 )
 
-# Apply reconstructed ages to the original candidate records
+# Assign a rank to the age-0 candidate records within each district 
+
+candidates_council_main <- candidates_council_main %>%
+  group_by(election_year, department_id, district_id) %>%
+  mutate(
+    age_rank = if_else(
+      candidate_age == 0 & !is.na(sex),
+      cumsum(candidate_age == 0 & !is.na(sex)),
+      NA_integer_
+    )
+  ) %>%
+  ungroup()
+
+# Apply the recovered ages by location + within-district rank
 
 candidates_council_main <- candidates_council_main %>%
   left_join(
-    birth_dates_tsje %>%
-      select(
-        election_year,
-        department_id,
-        district_id,
-        surname,
-        first_name,
-        reconstructed_age
-      ),
-    by = c(
-      "election_year",
-      "department_id",
-      "district_id",
-      "surname",
-      "first_name"
-    )
+    tsje_ages,
+    by = c("election_year", "department_id", "district_id", "age_rank")
   )
 
-# Verify that all eight candidates matched the original TSJE candidate data
+# All eight records must match, and all matched records must have been age 0
 
 stopifnot(
-  sum(!is.na(candidates_council_main$reconstructed_age)) == 8
-)
-
-# Verify that the matched candidates were originally recorded with age = 0
-
-stopifnot(
+  sum(!is.na(candidates_council_main$reconstructed_age)) == 8,
   all(
     candidates_council_main$candidate_age[
       !is.na(candidates_council_main$reconstructed_age)
@@ -287,7 +243,7 @@ stopifnot(
   )
 )
 
-# Replace age for records originally recorded as zero
+# Replace age for those eight records
 
 candidates_council_main <- candidates_council_main %>%
   mutate(
@@ -296,14 +252,10 @@ candidates_council_main <- candidates_council_main %>%
       as.numeric(reconstructed_age),
       as.numeric(candidate_age)
     )
-  )
+  ) %>%
+  select(-age_rank, -reconstructed_age)
 
-# Remove temporary reconstruction variable
-
-candidates_council_main <- candidates_council_main %>%
-  select(-reconstructed_age)
-
-# Removing age-0 records (placeholders) before computing shares: ---------------
+# Removing age-0 records (placeholders) before computing shares ----------------
 
 # 163 empty rows (with no name, sex or age) in the pre-reform municipal 
 # elections (2006, 2010, 2015). Before Law No. 6318/2019, party lists did not
@@ -531,27 +483,10 @@ analytical_data[fca_row, c("young_18to29_participation", "youth_turnout_18to29",
                            "youth_turnout_female", "youth_turnout_male")] <- NA
 
 # ------------------------------------------------------------------------------
-# STEP 13: Building lagged youth turnout (previous election, same district)
+# STEP 13: Building lagged youth turnout 
 # ------------------------------------------------------------------------------
 
-# create a df to see previous elections:
-# prev_election <- tibble(
-#  year      = c(2010, 2015, 2021),
-#  year_prev = c(2006, 2010, 2015)
-#)
-
-# Create variable of previous election per district-year: 
-#turnout_prev <- analytical_data %>%
-#  select(district_id, year_prev = year, turnout_lag = youth_turnout_18to29)
-
-# Join previous-election turnout onto each district-year
-# analytical_data <- analytical_data %>%
-#  left_join(prev_election, by = "year") %>%
-#  left_join(turnout_prev,  by = c("district_id", "year_prev")) %>%
-#  select(-year_prev)
-
-# Checking:
-# sum(is.na(analytical_data$turnout_lag))  
+# A lagged-turnout control was considered but not included in the final design.
 
 # ------------------------------------------------------------------------------
 # STEP 14: Changing district names in data base
@@ -844,6 +779,7 @@ stopifnot(
 
 # Verify that both panels are balanced, complete, and unique (no missing values
 # or duplicated outcomes)
+
 stopifnot(
   all(count(panel_main, unit)$n == 2),
   all(count(panel_placebo, unit)$n == 2),
