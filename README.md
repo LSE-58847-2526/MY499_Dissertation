@@ -36,9 +36,10 @@ seeing-themselves-on-the-ballot/
 │   └── 05_maps.R           # District-level maps (INE 2022 shapefile)
 ├── data/
 │   ├── raw_data/           # Raw TSJE .csv files (see Data section)
-│   ├── auxiliary/          # Auxiliary TSJE birth-date file (see Data section)
+│   ├── auxiliary/          # TSJE response letter (see Data section)
 │   └── maps/               # Paraguay district shapefile (INE, 2022)
 └── output/
+    ├── Codebook.xlsx       # Variable definitions for the three datasets
     ├── analytical_data.csv # District-year dataset (four elections)
     ├── panel_main.csv      # Harmonised 2015→2021 panel (main analysis)
     ├── panel_placebo.csv   # Harmonised 2006→2010 panel (placebo)
@@ -54,22 +55,26 @@ participants and no personal survey data.
 |-------|----------|--------|
 | Electoral register / participation / abstention (1996–2023) | [Zenodo](https://doi.org/10.5281/zenodo.21896946) | Electoral Justice of Paraguay (TSJE) |
 | Candidates, municipal and general elections (1998–2023) | `data/raw_data/` | Electoral Justice of Paraguay (TSJE) |
-| Birth dates for candidates recorded without age | `data/auxiliary/` | Formal request to the TSJE (see dissertation Appendix B) |
+| TSJE response letter (documents the age request) | `data/auxiliary/` | Formal request to the TSJE (Appendix B) |
 | District boundaries shapefile | `data/maps/` | National Institute of Statistics of Paraguay (INE) |
 
-The processed datasets in `output/` are included so that scripts `03`–`05` can be
-run without the raw inputs. To reproduce the full pipeline from scratch, place
+Full definitions of every variable in the three datasets are documented in
+`output/Codebook.xlsx`.
+
+The processed datasets in `output/` are included, in order for scripts `03` to `05` 
+to be run without the raw inputs. To reproduce the full pipeline, place
 the raw files listed above in the corresponding folders (each folder contains a
 short note with the exact expected file name).
 
-The raw electoral register file exceeds GitHub's size limit and is therefore
-archived on Zenodo: **https://doi.org/10.5281/zenodo.21896946**. Download it from
-there and place it in `data/raw_data/` before running scripts `01`–`02`.
+The raw electoral register file exceeds GitHub's size limit of 25MB and is
+archived on Zenodo: **https://doi.org/10.5281/zenodo.21896946**. Download it 
+and place it in `data/raw_data/` before running scripts `01` and `02`.
 
-**A note on the auxiliary file:** it contains the names and birth dates of a
-small number of council candidates. These are public electoral candidates, but
-consider whether to include the file as-is, include a de-identified version, or
-document it only, before publishing.
+**A note on missing candidate ages:** Some council candidates were missing an
+age in the raw data. Their ages were recovered and are applied directly in
+`scripts/02_clean_data.R`, matched by location. To protect personal data, 
+the underlying file is not published; the TSJE response letter in
+`data/auxiliary/` documents the source.
 
 ## Reproducing the analysis
 
