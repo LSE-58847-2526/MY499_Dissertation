@@ -689,13 +689,14 @@ stopifnot(
 # STEP 17: Defining the harmonisation function
 # ------------------------------------------------------------------------------
 
-# Takes the two years of a window and a crosswalk, assigns each district to 
-# its cluster (districts not in the map keep their own id), sums the count 
-# variables per cluster-year, and recomputes rates/shares/logs from the summed 
-# counts. Finally, keeps only balanced units (present in both window years).
+# Takes the two years of a window and the crosswalk, assigns each district to 
+# its cluster, i.e. the harmonised unit (districts without parents keep their 
+# own id), sums the count variables per unit-year, and recomputes 
+# rates/shares/logs from the summed counts. Finally, keeps only balanced units 
+# (present in both window years).
 
 # Sum counts only when all component values are observed;
-# otherwise the harmonised unit is set to NA.
+# otherwise, the harmonised unit is set to NA.
 
 sum_strict <- function(x) {
   if (any(is.na(x))) NA_real_ else sum(x)
@@ -769,7 +770,8 @@ panel_main <- harmonise_window(
 panel_placebo <- harmonise_window(
   analytical_data, c(2006, 2010), crosswalk_placebo)
 
-# Verify exact panel sizes (documents the dimensions after harmonisation).
+# Verify exact panel sizes (documents the dimensions after harmonisation)
+
 stopifnot(
   nrow(panel_main)             == 492,
   n_distinct(panel_main$unit)  == 246,
@@ -797,3 +799,4 @@ write_csv(panel_main,    here::here("output", "panel_main.csv"))
 write_csv(panel_placebo, here::here("output", "panel_placebo.csv"))
 
 # ============================ End of script ===================================
+view(analytical_data)
