@@ -1,27 +1,23 @@
 # Seeing Themselves on the Ballot
 
 Replication data and R code for the MSc dissertation *"Seeing themselves on the
-ballot"* (MY499, MSc in Social Research Methods, Department of Methodology,
+ballot: Young candidates and youth turnout after an electoral reform in 
+Paraguay"* (MY499, MSc in Social Research Methods, Department of Methodology,
 London School of Economics and Political Science).
 
 ## Overview
 
-The project examines whether the visibility of young candidates on the ballot
-affects youth voter turnout, using Paraguayan municipal elections. The empirical
-strategy exploits the 2019 electoral reform (Law No. 6318/2019), which
-introduced preferential voting with electronic machines that display each
-council candidate's name, number and photograph. Candidate characteristics such
-as age therefore became observable at the moment of vote choice only after the
-reform.
+This project studies whether the relationship between the supply of young
+municipal council candidates and youth turnout changed after Paraguay's 2019
+electoral reform (Law No. 6318/2019), which let voters cast preferential votes  
+for individual candidates.
 
-The main analysis compares the pre-reform (2015) and post-reform (2021) municipal
-elections at the district level, using a fixed-effects specification with an
-interaction between the young-candidate share and the post-reform period.
-Robustness and placebo checks use a pre-reform window (2006–2010) and the
-mayoral contest, which the reform did not change.
+Using district-level electoral records, it compares the pre-reform (2015) 
+and post-reform (2021) municipal elections, with placebo checks on a 
+pre-reform window (2006–2010) and the mayoral contest. 
 
 *Note: the code in this repository is provided for transparency and
-reproducibility. It is not part of the assessed submission.*
+reproducibility.*
 
 ## Repository structure
 
@@ -69,12 +65,6 @@ short note with the exact expected file name).
 The raw electoral register file exceeds GitHub's size limit of 25MB and is
 archived on Zenodo: **https://doi.org/10.5281/zenodo.21896946**. Download it 
 and place it in `data/raw_data/` before running scripts `01` and `02`.
-
-**A note on missing candidate ages:** Some council candidates were missing an
-age in the raw data. Their ages were recovered and are applied directly in
-`scripts/02_clean_data.R`, matched by location. To protect personal data, 
-the underlying file is not published; the TSJE response letter in
-`data/auxiliary/` documents the source.
 
 ## Reproducing the analysis
 
