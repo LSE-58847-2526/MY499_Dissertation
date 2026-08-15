@@ -279,8 +279,8 @@ panel_mayor <- analytical_data %>%
     .groups = "drop"
   ) %>%
   mutate(
-    youth_cand_share       = n_young / n_candidates, # <-- council (actual)
-    youth_cand_share_mayor = n_young_mayor / n_candidates_mayor, # <-- mayor (placebo)
+    youth_cand_share       = n_young / n_candidates, 
+    youth_cand_share_mayor = n_young_mayor / n_candidates_mayor, 
     youth_turnout_18to29   = young_18to29_participation / young_18to29_register,
     youth_share            = young_18to29_register / total_electors,
     log_total_electors     = log(total_electors),
@@ -299,8 +299,8 @@ model_placebo_mayor <- feols(
 summary(model_placebo_mayor)
 confint(model_placebo_mayor)["youth_cand_share_mayor:post", ]
 
-# Conditioned specification (main), following Eggers, Tuñon and Dafoe (2024,
-# p. 1115) on including the real treatment (youth_cand_share)
+# Conditioned specification (main)
+
 model_placebo_mayor_cond <- feols(
   youth_turnout_18to29 ~ youth_cand_share_mayor + post + post:youth_cand_share_mayor +
     youth_cand_share + youth_cand_share:post +
