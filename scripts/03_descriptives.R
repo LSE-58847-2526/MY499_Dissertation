@@ -168,6 +168,54 @@ r2_by_year <- panel_main %>%
 print(r2_by_year)
 
 # ------------------------------------------------------------------------------
+# FIGURE 3: Mean youth turnout by department, 2015 vs 2021
+# ------------------------------------------------------------------------------
+
+# District-level mean of youth turnout, aggregated by department and year.
+# Bars ordered by 2021 turnout. Asuncion (the capital) marked with (*).
+
+dept_turnout <- panel_main %>%
+  mutate(
+    department = str_to_title(str_to_lower(department)),
+    department = if_else(department == "Capital", "Asunción (*)", department)
+  ) %>%
+  group_by(department, year) %>%
+  summarise(
+    mean_turnout = mean(youth_turnout_18to29, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Order departments by 2021 turnout (descending) -------------------------------
+
+dept_order <- dept_turnout %>%
+  filter(year == 2021) %>%
+  arrange(desc(mean_turnout)) %>%
+  pull(department)
+
+dept_turnout <- dept_turnout %>%
+  mutate(
+    department = factor(department, levels = dept_order),
+    year = factor(year)
+  )
+
+fig_3 <- ggplot(dept_turnout, aes(x = department, y = mean_turnout, fill = year)) +
+  geom_col(position = position_dodge(width = 0.75), width = 0.7) +
+  scale_fill_manual(values = c("2015" = "#6b8cae", "2021" = "#c17b7b")) +
+  scale_y_continuous(labels = scales::label_percent(accuracy = 1)) +
+  labs(x = NULL, y = "Youth turnout", fill = "Election year") +
+  theme_thesis +
+  theme(
+    legend.position = "top",
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    panel.grid.major.x = element_blank()
+  )
+
+ggsave(here::here("output", "figures", "fig_3_dept_turnout.png"),
+       fig_3,
+       width = 9, height = 5, dpi = 150
+)
+
+# ------------------------------------------------------------------------------
 # Distribution of district electorate, raw vs log (APPENDIX E)
 # ------------------------------------------------------------------------------
 
