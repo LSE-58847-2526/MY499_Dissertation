@@ -799,4 +799,3 @@ write_csv(panel_main,    here::here("output", "panel_main.csv"))
 write_csv(panel_placebo, here::here("output", "panel_placebo.csv"))
 
 # ============================ End of script ===================================
-view(analytical_data)
