@@ -46,7 +46,7 @@ crosswalk_main <- tribble(
 # 1. MAIN SPECIFICATION
 # ==============================================================================
 
-# 'unit' is the harmonised territorial district (constant 2015–2021 boundaries).
+# 'unit' is the harmonised panel unit (constant 2015-2021 boundaries).
 # District FE (unit) + explicit Post.
 # SEs clustered by unit.
 
