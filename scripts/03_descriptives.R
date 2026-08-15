@@ -32,6 +32,38 @@ theme_thesis <- theme_minimal(base_size = 11, base_family = "serif") +
   )
 
 # ------------------------------------------------------------------------------
+# TABLE: Aggregate counts by election
+# ------------------------------------------------------------------------------
+
+# Provides the national scale behind the district-level variables.
+
+vars_raw <- c(
+  total_electors             = "Total electorate",
+  young_18to29_register      = "Registered young voters (18-29)",
+  young_18to29_participation = "Young voters who turned out (18-29)",
+  n_candidates               = "Total council candidates",
+  n_young                    = "Young council candidates (<=35)"
+)
+
+table_raw <- panel_main %>%
+  group_by(year) %>%
+  summarise(
+    across(all_of(names(vars_raw)), ~ sum(.x, na.rm = TRUE)),
+    .groups = "drop"
+  ) %>%
+  pivot_longer(-year, names_to = "key", values_to = "count") %>%
+  pivot_wider(names_from = year, values_from = count) %>%
+  mutate(Variable = factor(vars_raw[key], levels = vars_raw)) %>%
+  arrange(Variable) %>%
+  mutate(
+    `2015` = format(`2015`, big.mark = ",", trim = TRUE),
+    `2021` = format(`2021`, big.mark = ",", trim = TRUE)
+  ) %>%
+  select(Variable, `2015`, `2021`)
+
+print(table_raw)
+
+# ------------------------------------------------------------------------------
 # TABLE 1: Descriptive statistics (2015 and 2021 elections)
 # ------------------------------------------------------------------------------
 
@@ -171,14 +203,31 @@ print(r2_by_year)
 # FIGURE 3: Mean youth turnout by department, 2015 vs 2021
 # ------------------------------------------------------------------------------
 
-# District-level mean of youth turnout, aggregated by department and year.
-# Bars ordered by 2021 turnout. Asuncion (the capital) marked with (*).
+# Manual accent map (raw data stores names without accents) ---------------------
+
+dept_labels <- c(
+  "ALTO PARAGUAY" = "Alto Paraguay",
+  "ALTO PARANA"   = "Alto Paraná",
+  "AMAMBAY"       = "Amambay",
+  "BOQUERON"      = "Boquerón",
+  "CAAGUAZU"      = "Caaguazú",
+  "CAAZAPA"       = "Caazapá",
+  "CANINDEYU"     = "Canindeyú",
+  "CAPITAL"       = "Asunción (*)",
+  "CENTRAL"       = "Central",
+  "CONCEPCION"    = "Concepción",
+  "CORDILLERA"    = "Cordillera",
+  "GUAIRA"        = "Guairá",
+  "ITAPUA"        = "Itapúa",
+  "MISIONES"      = "Misiones",
+  "PARAGUARI"     = "Paraguarí",
+  "PDTE. HAYES"   = "Pdte. Hayes",
+  "SAN PEDRO"     = "San Pedro",
+  "ÑEEMBUCU"      = "Ñeembucú"
+)
 
 dept_turnout <- panel_main %>%
-  mutate(
-    department = str_to_title(str_to_lower(department)),
-    department = if_else(department == "Capital", "Asunción (*)", department)
-  ) %>%
+  mutate(department = recode(department, !!!dept_labels)) %>%
   group_by(department, year) %>%
   summarise(
     mean_turnout = mean(youth_turnout_18to29, na.rm = TRUE),
@@ -200,8 +249,14 @@ dept_turnout <- dept_turnout %>%
 
 fig_3 <- ggplot(dept_turnout, aes(x = department, y = mean_turnout, fill = year)) +
   geom_col(position = position_dodge(width = 0.75), width = 0.7) +
+  geom_text(
+    aes(label = scales::label_percent(accuracy = 1)(mean_turnout)),
+    position = position_dodge(width = 0.75),
+    vjust = -0.4, size = 2.4, family = "serif"
+  ) +
   scale_fill_manual(values = c("2015" = "#6b8cae", "2021" = "#c17b7b")) +
-  scale_y_continuous(labels = scales::label_percent(accuracy = 1)) +
+  scale_y_continuous(labels = scales::label_percent(accuracy = 1),
+                     expand = expansion(mult = c(0, 0.08))) +
   labs(x = NULL, y = "Youth turnout", fill = "Election year") +
   theme_thesis +
   theme(
@@ -214,7 +269,6 @@ ggsave(here::here("output", "figures", "fig_3_dept_turnout.png"),
        fig_3,
        width = 9, height = 5, dpi = 150
 )
-
 # ------------------------------------------------------------------------------
 # Distribution of district electorate, raw vs log (APPENDIX E)
 # ------------------------------------------------------------------------------
