@@ -9,8 +9,7 @@ London School of Economics and Political Science).
 
 This project studies whether the relationship between the supply of young
 municipal council candidates and youth turnout changed after Paraguay's 2019
-electoral reform (Law No. 6318/2019), which let voters cast preferential votes  
-for individual candidates.
+electoral reform (Law No. 6318/2019), which let voters cast preferential votes for individual candidates.
 
 Using district-level electoral records, it compares the pre-reform (2015) 
 and post-reform (2021) municipal elections, with placebo checks on a 
